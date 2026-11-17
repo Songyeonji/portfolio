@@ -111,7 +111,7 @@ b, strong { font-weight: 700; color: var(--ink); }
 .about-card__body { max-width: 47em; }
 .about-card p { font-size: 1em; line-height: 1.85; color: var(--ink-2); }
 .about-card p + p { margin-top: .8em; }
-.about-card b { background: linear-gradient(transparent 60%, #fde2cb 60%); }
+.about-card b { box-shadow: inset 0 -.42em 0 #fde2cb; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 
 /* ───────── 지원동기 / 스킬 ───────── */
 .mot-heading { font-size: 1.3em; font-weight: 800; letter-spacing: -.02em; margin-bottom: 1em; }
@@ -260,8 +260,13 @@ body.modal-open { overflow: hidden; }
 .pmodal .project__body::before { content: ''; height: 1px; background: var(--line); margin-bottom: .2em; }
 
 /* 지원동기·경력: 핵심 문장 굵게 */
-.mot-body b { background: linear-gradient(transparent 62%, #fde2cb 62%); }
-.bullets b { color: var(--ink); }
+.mot-body b { box-shadow: inset 0 -.42em 0 #fde2cb; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+/* 경력·프로젝트: 굵게 + 옅은 형광펜 → 작은 글씨(PDF)에서도 핵심이 바로 보이게 */
+.bullets b, .detail p b, .project__summary b {
+  color: var(--ink); font-weight: 750;
+  box-shadow: inset 0 -.42em 0 #feead9;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
 
 /* ───────── 학력 · 수상 ───────── */
 .edu-list { border-top: 2px solid var(--ink); }
