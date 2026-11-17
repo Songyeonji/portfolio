@@ -79,7 +79,8 @@
   <input type="file" id="fileImport" accept=".js,.json" hidden>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/data.js"></script>
-  <script src="js/app.js?v=4"></script>
+  <!-- data.js는 편집/저장으로 자주 바뀌므로 매번 최신본을 받도록 캐시 무효화 -->
+  <script>document.write('<script src="js/data.js?t=' + Date.now() + '"><\/script>');</script>
+  <script src="js/app.js?v=5"></script>
 </body>
 </html>
