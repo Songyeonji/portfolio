@@ -376,3 +376,7 @@ body.paper .timeline li { padding: .2em 0; }
   body.editing [data-path] { outline: none !important; background: none !important; }
   .pill::after { content: '↗'; }
 }
+
+/* React 버전: 삭제(×) 버튼이 들어있는 항목 기준으로 위치·호버 처리 */
+body.editing :has(> .ed-x) { position: relative; }
+body.editing :has(> .ed-x):hover > .ed-x { opacity: 1; }

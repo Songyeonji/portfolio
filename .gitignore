@@ -1,3 +1,6 @@
+node_modules/
+dist/
 .claude/
 Thumbs.db
 .DS_Store
+*.local
