@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>송연지 | 포트폴리오</title>
+  <meta name="description" content="업무의 구조를 이해하고, 기술로 효율을 설계하는 프론트엔드 개발자 송연지의 포트폴리오">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+  <header class="topbar no-print">
+    <div class="topbar__inner">
+      <a class="topbar__brand" href="#top" id="brand">송연지</a>
+      <nav class="topbar__nav" id="nav"></nav>
+      <div class="topbar__actions">
+        <button class="btn btn--primary" id="btnPdf" type="button" title="PDF로 저장 (A4 · 페이지 단위)">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4l3.3 3.3V4a1 1 0 0 1 1-1zM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2z"/></svg>
+          <span>PDF 다운로드</span>
+        </button>
+        <button class="btn btn--icon" id="btnLock" type="button" title="편집 모드" aria-label="편집 모드">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v3h6V7a3 3 0 0 0-3-3zm0 9a2 2 0 0 0-1 3.7V18a1 1 0 1 0 2 0v-1.3A2 2 0 0 0 12 13z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 편집 도구 막대 (편집 모드에서만 표시) -->
+  <div class="editbar no-print" id="editbar" hidden>
+    <div class="editbar__inner">
+      <strong class="editbar__title">편집 모드</strong>
+      <span class="editbar__hint">글자를 클릭해 바로 수정 · 이미지 위 버튼으로 교체 · 수정 내용은 이 브라우저에 자동 임시저장</span>
+      <div class="editbar__actions">
+        <button class="btn btn--sm" id="btnPaper" type="button">A4 미리보기</button>
+        <button class="btn btn--sm" id="btnExport" type="button">data.js 내보내기</button>
+        <button class="btn btn--sm" id="btnImport" type="button">불러오기</button>
+        <button class="btn btn--sm btn--primary" id="btnGithub" type="button">GitHub에 저장</button>
+        <button class="btn btn--sm btn--ghost" id="btnReset" type="button">임시저장 삭제</button>
+        <button class="btn btn--sm btn--ghost" id="btnLockOut" type="button">편집 종료</button>
+      </div>
+    </div>
+  </div>
+
+  <main id="app" class="doc"></main>
+
+  <!-- 비밀번호 -->
+  <dialog id="dlgLogin" class="dialog">
+    <form method="dialog" id="formLogin">
+      <h3>편집 모드</h3>
+      <p class="dialog__desc">비밀번호를 입력하면 내용과 이미지를 수정할 수 있어요.</p>
+      <input type="password" id="inpPw" autocomplete="current-password" placeholder="비밀번호" required>
+      <p class="dialog__error" id="pwError" hidden>비밀번호가 맞지 않아요.</p>
+      <div class="dialog__actions">
+        <button class="btn" type="button" data-close>취소</button>
+        <button class="btn btn--primary" value="ok" type="submit">확인</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- GitHub 저장 -->
+  <dialog id="dlgGithub" class="dialog dialog--wide">
+    <form method="dialog" id="formGithub">
+      <h3>GitHub에 저장</h3>
+      <p class="dialog__desc">수정한 내용(<code>js/data.js</code>)과 새로 올린 이미지를 저장소에 바로 커밋합니다. GitHub Pages가 자동으로 다시 배포돼요.
+        토큰은 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained token</a>(해당 저장소 · Contents: Read and write)으로 만들고, 이 브라우저에만 저장됩니다.</p>
+      <label>저장소 <input id="ghRepo" placeholder="Songyeonji/portfolio" required></label>
+      <label>브랜치 <input id="ghBranch" placeholder="main" required></label>
+      <label>토큰 <input id="ghToken" type="password" autocomplete="off" placeholder="github_pat_..." required></label>
+      <p class="dialog__status" id="ghStatus"></p>
+      <div class="dialog__actions">
+        <button class="btn" type="button" data-close>닫기</button>
+        <button class="btn btn--primary" value="ok" type="submit" id="ghSubmit">커밋하기</button>
+      </div>
+    </form>
+  </dialog>
+
+  <input type="file" id="fileImage" accept="image/*" hidden>
+  <input type="file" id="fileImport" accept=".js,.json" hidden>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js?v=2"></script>
+</body>
+</html>
