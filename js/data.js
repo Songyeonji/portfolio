@@ -120,7 +120,7 @@ window.PORTFOLIO_DATA = {
       "period": "2026.10 ~ 2026.11",
       "role": "차량 앱 개발 · 웹 개발 · PM",
       "badge": "현대자동차그룹 차량용 앱 개발 공모전 출품",
-      "thumbnail": "assets/images/paircar.svg",
+      "thumbnail": "assets/images/paircar.jpg",
       "links": [
         { "label": "GitHub · 차량 앱", "url": "https://github.com/hyundai-full-accel/paircar-vehicle" },
         { "label": "GitHub · 동승자 웹", "url": "https://github.com/hyundai-full-accel/paircar-mobile" },

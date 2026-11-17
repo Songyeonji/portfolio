@@ -149,11 +149,32 @@
     return wrap;
   }
 
-  // 링크 (편집 모드: 라벨 수정 + URL 버튼)
+  // 링크 종류별 아이콘 (URL로 자동 판별)
+  const ICON = {
+    github: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.3-.5-1.5.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24"><rect x="1" y="4.5" width="22" height="15" rx="4.5" fill="#ff0033"/><path d="M9.8 8.6v6.8l5.9-3.4z" fill="#fff"/></svg>',
+    velog: '<svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="#20c997"/><path d="M6.6 7h3l1.6 6.6L15 7h2.7l-5.6 10h-2.6z" fill="#fff"/></svg>',
+    web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.8 6 3.8 9.5s-1.2 6.7-3.8 9.5c-2.6-2.8-3.8-6-3.8-9.5s1.2-6.7 3.8-9.5z"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg>',
+    tel: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>'
+  };
+  function linkKind(url) {
+    url = (url || '').toLowerCase();
+    if (url.startsWith('mailto:')) return 'mail';
+    if (url.startsWith('tel:')) return 'tel';
+    if (url.includes('github.com')) return 'github';
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+    if (url.includes('velog.io')) return 'velog';
+    return 'web';
+  }
+
+  // 링크 (아이콘 자동 · 편집 모드: 라벨 수정 + URL 버튼)
   function A(path, cls, labelKey = 'label') {
     const url = get(path + '.url');
-    const a = h('a', { class: cls, href: isUrl(url) ? url : null, target: '_blank', rel: 'noopener' },
-      T('span', `${path}.${labelKey}`, null, { ph: '링크 이름' }));
+    const kind = linkKind(url);
+    const a = h('a', { class: `${cls} lk lk--${kind}`, href: isUrl(url) ? url : null, target: '_blank', rel: 'noopener', title: isUrl(url) ? url : null },
+      h('span', { class: 'lk__ic', 'aria-hidden': 'true', html: ICON[kind] }),
+      T('span', `${path}.${labelKey}`, 'lk__label', { ph: '링크 이름' }));
     if (state.edit) a.append(ctl('URL', () => {
       const v = prompt('링크 주소(URL)를 입력하세요', get(path + '.url') || 'https://');
       if (v != null) { set(path + '.url', v.trim()); commit(); }
@@ -210,9 +231,11 @@
             L('profile.channels', (_, p) => h('li', null, T('span', p + '.label', 'c-label'), A(p, 'c-link', 'text')), () => ({ label: '채널', text: '주소', url: 'https://' }), { cls: 'contact-list' })))));
 
     const about = block('about', secHead('About ME.', 'about', 'about'),
-      L('about', (_, p) => h('article', { class: 'about-card' },
-        T('h3', p + '.heading', null, { ph: '소제목' }),
-        L(p + '.paragraphs', (_, pp) => h('p', null, T('span', pp, null, { rich: true })), () => '새 문단', { tag: 'div', addLabel: '문단' })),
+      L('about', (_, p, i) => h('article', { class: 'about-card' },
+        h('div', { class: 'about-card__head' },
+          h('span', { class: 'about-num' }, String(i + 1).padStart(2, '0')),
+          T('h3', p + '.heading', null, { ph: '소제목' })),
+        L(p + '.paragraphs', (_, pp) => h('p', null, T('span', pp, null, { rich: true })), () => '새 문단', { tag: 'div', cls: 'about-card__body', addLabel: '문단' })),
         () => ({ heading: '새 소제목', paragraphs: ['내용'] }), { tag: 'div', cls: 'about-grid', addLabel: '강점 추가' }));
 
     return sheet('top', 'sheet--cover', h('div', { class: 'block' }, hero), about);
@@ -293,12 +316,10 @@
 
   function renderEducation() {
     const list = path => L(path, (_, p) => h('li', null, T('span', p + '.date', 'tl-date', { ph: '날짜' }), T('span', p + '.text', 'tl-text', { ph: '내용' })), () => ({ date: '', text: '' }), { cls: 'timeline' });
+    const groups = [['Education', 'education'], ['IT - Education', 'itEducation'], ['Certificate', 'certificates'], ['Award', 'awards']];
     return sheet('education', 'sheet--edu', block('education', secHead('Education & More.', 'education'),
-      h('div', { class: 'edu-grid' },
-        h('div', { class: 'edu-col' }, h('h3', { class: 'edu-title' }, 'Education'), list('education'),
-          h('h3', { class: 'edu-title' }, 'Certificate'), list('certificates')),
-        h('div', { class: 'edu-col' }, h('h3', { class: 'edu-title' }, 'IT - Education'), list('itEducation')),
-        h('div', { class: 'edu-col edu-col--wide' }, h('h3', { class: 'edu-title' }, 'Award'), list('awards')))));
+      h('div', { class: 'edu-list' }, groups.map(([title, key]) =>
+        h('div', { class: 'edu-group' }, h('h3', { class: 'edu-title' }, title), list(key))))));
   }
 
   /* ───────── 렌더 ───────── */
@@ -370,8 +391,11 @@
     else app.querySelectorAll('.sheet').forEach(s => { s.style.removeProperty('--fit'); s.style.removeProperty('--thumb'); s.classList.remove('overflow'); });
   }
 
-  let paperBeforePrint = false, titleBeforePrint = '';
+  // 인쇄(PDF) 창이 닫히면 원래 보던 화면(웹/A4 미리보기)으로 복귀
+  let printing = false, paperBeforePrint = false, titleBeforePrint = '';
   function beforePrint() {
+    if (printing) { fitSheets(); return; }   // PDF 버튼 → window.print()의 beforeprint 중복 호출 방지
+    printing = true;
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     paperBeforePrint = state.paper;
     titleBeforePrint = document.title;
@@ -379,6 +403,8 @@
     if (!state.paper) setPaper(true); else fitSheets();
   }
   function afterPrint() {
+    if (!printing) return;
+    printing = false;
     document.title = titleBeforePrint || document.title;
     if (!paperBeforePrint) setPaper(false);
   }
@@ -391,7 +417,7 @@
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     beforePrint();
     toast('인쇄 창에서 대상을 ‘PDF로 저장’으로 선택하세요', 3500);
-    setTimeout(() => window.print(), 60);
+    setTimeout(() => { window.print(); afterPrint(); }, 60);   // print()는 창이 닫힐 때까지 대기 → 닫히면 즉시 복귀
   }
 
   /* ───────── 편집 입력 처리 ───────── */
