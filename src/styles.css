@@ -259,6 +259,15 @@ body.modal-open { overflow: hidden; }
 .pmodal .project__body { border-top: 0; padding-top: 1.6em; }
 .pmodal .project__body::before { content: ''; height: 1px; background: var(--line); margin-bottom: .2em; }
 
+/* 지원동기 버전 관리 (편집 모드) */
+.mot-switch {
+  flex-wrap: wrap; align-items: center; gap: 6px; margin: -.6em 0 1.4em; padding: 10px 12px;
+  background: #fff8f2; border: 1px dashed #f0c39f; border-radius: 12px; font-size: 13px;
+}
+.mot-switch__label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent-ink); margin-right: 4px; }
+.mot-switch select { font: inherit; font-weight: 600; color: var(--ink); height: 30px; padding: 0 8px; border: 1px solid #f0c39f; border-radius: 7px; background: #fff; max-width: 100%; }
+body.editing .mot-switch .ed-btn { display: inline-flex; }
+
 /* 지원동기·경력: 핵심 문장 굵게 */
 .mot-body b { box-shadow: inset 0 -.42em 0 #fde2cb; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 /* 경력·프로젝트: 굵게 + 옅은 형광펜 → 작은 글씨(PDF)에서도 핵심이 바로 보이게 */

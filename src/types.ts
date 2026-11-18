@@ -61,6 +61,16 @@ export interface Project {
   hidden?: boolean;
 }
 
+/** 지원동기 버전 (회사별로 하나씩) */
+export interface Motivation {
+  /** 링크용 영문 id → ?m=<id> */
+  id: string;
+  /** 지원 회사명 (화면에는 안 보이고 편집·PDF 파일명에 사용) */
+  company: string;
+  heading: string;
+  paragraphs: string[];
+}
+
 export interface DatedItem {
   date: string;
   text: string;
@@ -84,10 +94,9 @@ export interface PortfolioData {
     channels: ContactItem[];
   };
   about: AboutItem[];
-  motivation: {
-    heading: string;
-    paragraphs: string[];
-  };
+  /** ?m= 없이 접속했을 때 보여줄 지원동기 버전 id */
+  defaultMotivation: string;
+  motivations: Motivation[];
   skills: SkillLevel[];
   work: WorkItem[];
   projects: Project[];

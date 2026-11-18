@@ -57,10 +57,12 @@ function Portfolio() {
     (document.activeElement as HTMLElement | null)?.blur?.();
     s.paperBefore = paperRef.current;
     s.titleBefore = document.title;
-    document.title = data.meta.pdfFileName || '포트폴리오';
+    // PDF 파일명: 송연지_포트폴리오_회사명 (지원동기 버전별로 구분)
+    const company = editor.isHidden('motivation') ? '' : editor.motivation.company;
+    document.title = [data.meta.pdfFileName || '포트폴리오', company].filter(Boolean).join('_');
     flushSync(() => setPaper(true));
     if (docRef.current) fitSheets(docRef.current);
-  }, [data.meta.pdfFileName, setPaper]);
+  }, [data.meta.pdfFileName, setPaper, editor]);
 
   const afterPrint = useCallback(() => {
     const s = printState.current;
@@ -80,9 +82,13 @@ function Portfolio() {
   }, [beforePrint, afterPrint]);
 
   const downloadPdf = async () => {
-    const imgs = Array.from(docRef.current?.querySelectorAll('img') ?? []);
-    await Promise.all(imgs.map((img) => (img.complete ? 0 : new Promise((r) => { img.onload = img.onerror = r; }))));
-    await document.fonts?.ready;
+    // PDF에 들어가는 이미지만 기다림 (웹 카드의 lazy 이미지는 화면에 안 보이면 영영 로드되지 않으므로 제외) + 최대 3초
+    const imgs = Array.from(docRef.current?.querySelectorAll<HTMLImageElement>('.sheet:not(.web-only) img') ?? []);
+    const loaded = Promise.all(imgs.map((img) => (img.complete ? 0 : new Promise((r) => {
+      img.addEventListener('load', r, { once: true });
+      img.addEventListener('error', r, { once: true });
+    }))));
+    await Promise.race([Promise.all([loaded, document.fonts?.ready]), new Promise((r) => setTimeout(r, 3000))]);
     beforePrint();
     toast('인쇄 창에서 대상을 ‘PDF로 저장’으로 선택하세요', 3500);
     setTimeout(() => { window.print(); afterPrint(); }, 60);   // print()는 창이 닫힐 때까지 대기

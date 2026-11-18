@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import data from '../data/portfolio.json';
 import { EDIT_PASSWORD_SHA256 } from '../components/Dialogs';
 import { linkKind } from './links';
+import { SLUG, normalize, pickMotivation } from './migrate';
 import { getIn, setIn } from './path';
 import { sha256 } from './sha256';
 
@@ -40,6 +41,33 @@ describe('linkKind', () => {
     ['tel:010', 'tel'],
     ['https://moon-kkkok.vercel.app/', 'web'],
   ])('%s → %s', (url, kind) => expect(linkKind(url)).toBe(kind));
+});
+
+describe('지원동기 버전', () => {
+  it('예전 형식(motivation 1개)을 버전 목록으로 변환', () => {
+    const old = { ...data, motivation: { heading: 'h', paragraphs: ['p'] } } as Record<string, unknown>;
+    delete old.motivations;
+    delete old.defaultMotivation;
+    const n = normalize(old);
+    expect(n.motivations).toEqual([{ id: 'default', company: '기본', heading: 'h', paragraphs: ['p'] }]);
+    expect(n.defaultMotivation).toBe('default');
+    expect('motivation' in n).toBe(false);
+  });
+  it('없는 기본값은 첫 버전으로 보정', () => {
+    expect(normalize({ ...data, defaultMotivation: 'nope' }).defaultMotivation).toBe(data.motivations[0].id);
+  });
+  it('?m= 로 고르고, 없거나 잘못되면 기본 버전', () => {
+    const list = data.motivations;
+    expect(pickMotivation(list, 'suresoft', 'controlf').company).toBe('슈어소프트테크');
+    expect(pickMotivation(list, null, 'controlf').company).toBe('컨트롤에프');
+    expect(pickMotivation(list, 'unknown', 'controlf').company).toBe('컨트롤에프');
+  });
+  it('portfolio.json: 버전 id가 겹치지 않고 링크용 형식', () => {
+    const ids = data.motivations.map((m) => m.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id).toMatch(SLUG));
+    expect(ids).toContain(data.defaultMotivation);
+  });
 });
 
 describe('portfolio.json', () => {

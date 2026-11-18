@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import original from '../data/portfolio.json';
-import type { PortfolioData, SectionKey } from '../types';
+import type { Motivation, PortfolioData, SectionKey } from '../types';
 import { getIn, setIn } from '../lib/path';
+import { motivationFromUrl, normalize, pickMotivation, syncMotivationUrl } from '../lib/migrate';
 import { sha256 } from '../lib/sha256';
 import { KEYS, store } from '../lib/storage';
 
-const ORIGINAL = original as PortfolioData;
+const ORIGINAL = normalize(original);
 /** 사이트 원본(portfolio.json)이 바뀌면 이전 임시저장은 자동 적용하지 않기 위한 기준값 */
 export const BASE_HASH = sha256(JSON.stringify(ORIGINAL));
 
@@ -18,7 +19,10 @@ interface Draft {
 function loadDraft(): Draft | null {
   const raw = store.get(KEYS.draft);
   if (!raw) return null;
-  try { return JSON.parse(raw) as Draft; } catch { return null; }
+  try {
+    const d = JSON.parse(raw) as Draft;
+    return { ...d, data: normalize(d.data) };
+  } catch { return null; }
 }
 
 export interface EditorApi {
@@ -33,6 +37,10 @@ export interface EditorApi {
   /** 구조 변경(추가/삭제/순서) — 복제본을 직접 수정 */
   mutate: (fn: (draft: PortfolioData) => void) => void;
   replaceData: (data: PortfolioData) => void;
+  /** 지금 보여주는 지원동기 버전 (?m= 또는 기본값) */
+  motivation: Motivation;
+  motivationIndex: number;
+  setMotivationId: (id: string) => void;
   resetToOriginal: () => void;
   isHidden: (key: SectionKey) => boolean;
   toggleHidden: (key: SectionKey) => void;
@@ -62,7 +70,15 @@ export function EditorProvider({ children }: { children: ReactNode }) {
   const [edit, setEdit] = useState(false);
   const [paper, setPaper] = useState(() => new URLSearchParams(location.search).has('paper'));
   const [toastMsg, setToastMsg] = useState<{ text: string; id: number } | null>(null);
+  const [motivationId, setMotivationIdState] = useState<string | null>(motivationFromUrl);
   const dirty = useRef(false);
+
+  const motivation = pickMotivation(data.motivations, motivationId, data.defaultMotivation);
+  const motivationIndex = data.motivations.indexOf(motivation);
+  const setMotivationId = useCallback((id: string) => {
+    setMotivationIdState(id);
+    syncMotivationUrl(id, data.defaultMotivation);
+  }, [data.defaultMotivation]);
 
   const toast = useCallback((text: string, ms = 2400) => {
     const id = Date.now();
@@ -93,13 +109,14 @@ export function EditorProvider({ children }: { children: ReactNode }) {
   const api = useMemo<EditorApi>(() => ({
     data, edit, paper, setEdit, setPaper, toastMsg, toast, update, mutate,
     get: <T,>(path: string) => getIn(data, path) as T,
-    replaceData: (d) => { dirty.current = true; setData(d); },
+    replaceData: (d) => { dirty.current = true; setData(normalize(d)); },
     resetToOriginal: () => { store.del(KEYS.draft); dirty.current = false; setData(ORIGINAL); },
+    motivation, motivationIndex, setMotivationId,
     isHidden: (key) => !!data.hidden?.[key],
     toggleHidden: (key) => mutate((d) => { d.hidden = { ...d.hidden, [key]: !d.hidden?.[key] }; }),
     takeStaleDraft: () => { const s = stale.current; stale.current = null; return s; },
     clearDraft: () => store.del(KEYS.draft),
-  }), [data, edit, paper, toastMsg, toast, update, mutate]);
+  }), [data, edit, paper, toastMsg, toast, update, mutate, motivation, motivationIndex, setMotivationId]);
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }
