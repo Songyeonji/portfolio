@@ -3,6 +3,9 @@ import { flushSync } from 'react-dom';
 import { EditorProvider, useEditor } from './editor/EditorContext';
 import { EditBar, TopBar, Toast } from './components/Bars';
 import { GithubDialog, LoginDialog } from './components/Dialogs';
+import { CursorGlow } from './components/CursorGlow';
+import { HeroBackground } from './components/HeroBackground';
+import { ScrollProgress, useReveal } from './components/Motion';
 import { clearFit, fitSheets, numberPages } from './lib/paper';
 import { KEYS, store } from './lib/storage';
 import { Cover } from './sections/Cover';
@@ -19,6 +22,9 @@ function Portfolio() {
   const [githubOpen, setGithubOpen] = useState(false);
 
   useEffect(() => { document.title = data.meta.siteTitle; }, [data.meta.siteTitle]);
+
+  // 스크롤 등장 효과 (편집·A4 모드에서는 끔)
+  useReveal(docRef, !edit && !paper);
 
   // body 클래스는 레이아웃 단계에서 동기 반영 (인쇄 직전 flushSync와 함께 즉시 적용되도록)
   useLayoutEffect(() => {
@@ -121,6 +127,9 @@ function Portfolio() {
   return (
     <>
       <TopBar onPdf={() => void downloadPdf()} onLock={onLock} />
+      <ScrollProgress />
+      {!paper && <HeroBackground />}
+      {!paper && <CursorGlow />}
       {edit && (
         <EditBar
           onGithub={() => setGithubOpen(true)}

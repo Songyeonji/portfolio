@@ -76,6 +76,7 @@ describe('portfolio.json', () => {
       expect(p.title).toBeTruthy();
       expect(p.thumbnail).toMatch(/^images\//);
       expect(p.details.length).toBeGreaterThan(0);
+      expect(p.problem, `${p.title}: 해결하려던 문제`).toBeTruthy();
     }
   });
 });

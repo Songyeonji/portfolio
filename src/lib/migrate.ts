@@ -11,6 +11,14 @@ export function normalize(raw: unknown): PortfolioData {
   if (!d.motivations.length) {
     d.motivations.push({ id: 'default', company: '기본', heading: '', paragraphs: [] });
   }
+  // 프로젝트: '해결하려던 문제' 칸이 없던 예전 데이터 보정 (없앤 '결과' 칸은 제거)
+  if (Array.isArray(d.projects)) {
+    d.projects = d.projects.map((p) => {
+      const { outcomes: _drop, ...rest } = p as typeof p & { outcomes?: unknown };
+      void _drop;
+      return { ...rest, problem: rest.problem ?? '' };
+    });
+  }
   if (!d.motivations.some((m) => m.id === d.defaultMotivation)) {
     d.defaultMotivation = d.motivations[0].id;
   }

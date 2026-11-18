@@ -56,6 +56,8 @@ export interface Project {
   thumbnail: string;
   links: LinkItem[];
   summary: string;
+  /** 해결하려던 문제 (<b> 허용) */
+  problem: string;
   stack: StackRow[];
   details: Detail[];
   hidden?: boolean;

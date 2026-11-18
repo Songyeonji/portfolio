@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
 import { useEditor } from '../editor/EditorContext';
 import { Editable } from '../components/Editable';
 import { EditableImage } from '../components/EditableImage';
@@ -10,12 +10,15 @@ import type { Detail, LinkItem, Project, StackRow } from '../types';
 
 const newProject = (): Project => ({
   title: '새 프로젝트', subtitle: '', team: '', period: '', role: '', badge: '', thumbnail: '',
-  links: [], summary: '프로젝트 소개', stack: [{ label: '', items: [] }], details: [],
+  links: [], summary: '프로젝트 소개', problem: '', stack: [{ label: '', items: [] }], details: [],
 });
+
+/** 카드 미리보기용: 서식 태그 제거 */
+const plainText = (html: string) => html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
 
 /** 프로젝트 상세 (모달 · A4 페이지 공용, 편집 가능) */
 function ProjectDetail({ index }: { index: number }) {
-  const { data } = useEditor();
+  const { data, edit } = useEditor();
   const p = data.projects[index];
   const path = `projects.${index}`;
   if (!p) return null;
@@ -42,6 +45,15 @@ function ProjectDetail({ index }: { index: number }) {
 
       <div className="project__body">
         <p className="project__summary"><Editable path={`${path}.summary`} rich placeholder="프로젝트 소개" /></p>
+
+        {/* 1. 왜 만들었는지 */}
+        {(p.problem || edit) && (
+          <section className="project__problem">
+            <h4 className="mini-title">해결하려던 문제</h4>
+            <Editable as="p" path={`${path}.problem`} rich placeholder="어떤 불편·문제를 풀고 싶었는지" />
+          </section>
+        )}
+
         <div className="project__stack">
           <h4 className="mini-title">Tech Stack</h4>
           <EditableList<StackRow> path={`${path}.stack`} as="div" addLabel="스택 줄" makeNew={() => ({ label: '', items: [] })}>
@@ -54,8 +66,9 @@ function ProjectDetail({ index }: { index: number }) {
             )}
           </EditableList>
         </div>
+        {/* 2. 어떻게 풀었는지 */}
         <div className="project__details-wrap">
-          <h4 className="mini-title">개발 내용</h4>
+          <h4 className="mini-title">해결 과정 · 개발 내용</h4>
           <EditableList<Detail> path={`${path}.details`} as="div" className="project__details" addLabel="개발 내용"
             makeNew={() => ({ title: '새 항목', text: '설명' })}>
             {(_, dp, __, x) => (
@@ -85,6 +98,20 @@ function ProjectTile({ index, onOpen }: { index: number; onOpen: () => void }) {
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); }
   };
+  // 마우스 방향으로 카드가 미세하게 기울어짐 (마우스 환경 + '동작 줄이기' 꺼짐일 때만)
+  const onTilt = (e: PointerEvent<HTMLElement>) => {
+    if (edit || e.pointerType !== 'mouse' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty('--ry', `${(px * 6).toFixed(2)}deg`);
+    el.style.setProperty('--rx', `${(-py * 5).toFixed(2)}deg`);
+  };
+  const resetTilt = (e: PointerEvent<HTMLElement>) => {
+    e.currentTarget.style.removeProperty('--rx');
+    e.currentTarget.style.removeProperty('--ry');
+  };
 
   return (
     <article
@@ -94,6 +121,8 @@ function ProjectTile({ index, onOpen }: { index: number; onOpen: () => void }) {
       aria-label={`${p.title} 자세히 보기`}
       onClick={onOpen}
       onKeyDown={onKey}
+      onPointerMove={onTilt}
+      onPointerLeave={resetTilt}
     >
       <div className="tile__thumb">
         {p.thumbnail ? <img src={asset(p.thumbnail)} alt="" loading="lazy" decoding="async" /> : <div className="img-empty">이미지 없음</div>}
@@ -103,6 +132,9 @@ function ProjectTile({ index, onOpen }: { index: number; onOpen: () => void }) {
         {p.badge && <p className="tile__badge">{p.badge}</p>}
         <h3 className="tile__title">{p.title}</h3>
         {p.subtitle && <p className="tile__subtitle">{p.subtitle}</p>}
+        {p.problem && (
+          <p className="tile__problem"><span>해결하려던 문제</span>{plainText(p.problem)}</p>
+        )}
         <p className="tile__meta">
           <span>{p.period}</span>
           {p.team && <span>{p.team}</span>}
