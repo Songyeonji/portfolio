@@ -161,6 +161,7 @@ function ProjectTile({ index, onOpen }: { index: number; onOpen: () => void }) {
 /** 프로젝트 상세 모달: ESC/바깥 클릭으로 닫기, ←/→ 로 이전·다음 프로젝트 */
 function ProjectModal({ order, current, onChange }: { order: number[]; current: number | null; onChange: (i: number | null) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { data } = useEditor();
   const pos = current == null ? -1 : order.indexOf(current);
   const open = current != null && pos >= 0;
@@ -174,7 +175,7 @@ function ProjectModal({ order, current, onChange }: { order: number[]; current: 
   }, [open]);
 
   // 다른 프로젝트로 넘어가면 맨 위부터
-  useEffect(() => { ref.current?.scrollTo({ top: 0 }); }, [current]);
+  useEffect(() => { scrollRef.current?.scrollTo({ top: 0 }); }, [current]);
 
   const go = useCallback((delta: number) => {
     if (pos < 0) return;
@@ -208,7 +209,10 @@ function ProjectModal({ order, current, onChange }: { order: number[]; current: 
               <button type="button" className="btn btn--sm btn--close" onClick={() => onChange(null)} aria-label="닫기">✕</button>
             </div>
           </div>
-          <ProjectDetail index={current!} />
+          {/* 내용만 스크롤 (상단 바는 고정, 스크롤바는 모달 안쪽에 얇게) */}
+          <div ref={scrollRef} className="pmodal__scroll">
+            <ProjectDetail index={current!} />
+          </div>
         </div>
       )}
     </dialog>
