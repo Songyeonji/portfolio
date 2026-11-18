@@ -321,6 +321,7 @@
             "TypeScript",
             "Vite",
             "Tailwind CSS",
+            "PWA",
             "Google Apps Script",
             "Google Spreadsheet",
             "Fetch API",
@@ -350,8 +351,8 @@
           "text": "CacheService, localStorage, 선택적 Polling을 활용하여 <b>불필요한 API 호출 및 Spreadsheet 조회 최소화</b>"
         },
         {
-          "title": "PWA 전환 진행",
-          "text": "모바일 환경에서 앱과 유사한 사용 경험을 제공하기 위해 <b>홈 화면 설치 및 PWA 환경으로 전환</b> 진행"
+          "title": "PWA 전환",
+          "text": "모바일에서 앱처럼 쓸 수 있도록 <b>홈 화면 설치를 지원하는 PWA로 전환</b> 완료"
         }
       ]
     },
