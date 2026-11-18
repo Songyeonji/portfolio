@@ -256,14 +256,6 @@
             "TanStack Query",
             "qrcode.react"
           ]
-        },
-        {
-          "label": "공통",
-          "items": [
-            "REST API",
-            "OSRM",
-            "GitHub Actions"
-          ]
         }
       ],
       "details": [
