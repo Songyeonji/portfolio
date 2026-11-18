@@ -472,19 +472,18 @@ body.paper .skills { gap: .5em; }
 body.paper .skill-row { grid-template-columns: 15em 1fr; padding: .7em 1em; border-radius: 3mm; }
 
 /* 경력 */
-/* 경력 (PDF): 일자로 — 위에 회사 정보 한 줄, 아래로 업무 내용을 페이지 폭 그대로 1단 */
+/* 경력 (PDF): 웹사이트와 같은 구성 — 왼쪽 회사 정보 · 오른쪽 업무 1단 */
 body.paper .jobs { gap: 0; border-top: 1.5px solid var(--ink); }
-body.paper .job { grid-template-columns: 1fr; gap: 1em; padding: 1.6em 0 1.7em; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; }
-body.paper .job__side { position: static; display: flex; flex-wrap: wrap; align-items: baseline; gap: .25em .9em; }
-body.paper .job__company { font-size: 1.5em; }
-body.paper .job__role { font-size: .95em; margin-top: 0; }
-body.paper .job__period { font-size: .9em; margin-bottom: 0; }
-body.paper .job__side .chips { flex-basis: 100%; margin-top: .35em; }
-body.paper .job__group h4 { display: flex; align-items: center; gap: .5em; font-size: 1.1em; margin-bottom: .4em; padding-left: 0; border-left: 0; line-height: 1.35; }
+body.paper .job { grid-template-columns: 12em minmax(0, 1fr); gap: 1.8em; padding: 1.9em 0 2em; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; }
+body.paper .job__side { position: static; }
+body.paper .job__company { font-size: 1.55em; }
+body.paper .job__role { font-size: .95em; margin-top: .2em; }
+body.paper .job__period { font-size: .9em; margin-bottom: .8em; }
+body.paper .job__group h4 { display: flex; align-items: center; gap: .5em; font-size: 1.13em; margin-bottom: .45em; padding-left: 0; border-left: 0; line-height: 1.35; }
 body.paper .job__group h4::before { content: ''; flex: none; width: .42em; height: .42em; border-radius: 50%; background: var(--accent); }
-body.paper .job__groups { grid-template-columns: 1fr; gap: 1.05em; }
-body.paper .bullets li { font-size: 1.05em; line-height: 1.62; padding-left: 1em; }
-body.paper .bullets li + li { margin-top: .2em; }
+body.paper .job__groups { grid-template-columns: 1fr; gap: 1.25em; }
+body.paper .bullets li { font-size: 1.08em; line-height: 1.66; padding-left: 1em; }
+body.paper .bullets li + li { margin-top: .25em; }
 body.paper .bullets li::before { left: .15em; top: .7em; width: .3em; height: .3em; }
 
 /* 프로젝트: 썸네일을 페이지 폭 가득 크게 */
