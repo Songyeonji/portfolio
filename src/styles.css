@@ -605,3 +605,7 @@ body.paper [data-reveal] { opacity: 1 !important; translate: none !important; }
 
 /* A4 */
 body.paper .project__problem p { font-size: .88em; line-height: 1.55; padding-left: .7em; }
+
+/* 경력: 주황 점 제목 아래 항목을 한 칸 들여쓰기 (항목 점이 제목 글자 시작에 맞춰짐) */
+.job__group .bullets { margin-left: 1em; }
+body.paper .job__group .bullets { margin-left: 1.05em; }
